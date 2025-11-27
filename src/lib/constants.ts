@@ -1,10 +1,34 @@
 import { browser, dev } from '$app/environment';
+import { base } from '$app/paths';
 // import { version } from '../../package.json';
 
 export const APP_NAME = 'Open WebUI';
 
-export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:8080` : ``) : '';
-export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
+const BACKEND_PARAM_KEYS = ['backend', 'backend_url', 'backendUrl'];
+const BACKEND_STORAGE_KEY = 'webui:backend-url';
+
+const normalizeUrl = (url: string) => url.replace(/\/+$/, '');
+
+const getBackendBaseUrl = () => {
+        if (!browser) return '';
+
+        const params = new URLSearchParams(window.location.search);
+        const paramUrl = BACKEND_PARAM_KEYS.map((key) => params.get(key)).find(Boolean)?.trim();
+        const envUrl = (import.meta.env.VITE_WEBUI_BACKEND_URL as string | undefined)?.trim();
+        const storedUrl = localStorage.getItem(BACKEND_STORAGE_KEY) ?? '';
+        const fallbackUrl = dev ? `http://${location.hostname}:8080` : window.location.origin;
+
+        const resolvedUrl = normalizeUrl(paramUrl || envUrl || storedUrl || fallbackUrl);
+
+        if (paramUrl) {
+                localStorage.setItem(BACKEND_STORAGE_KEY, resolvedUrl);
+        }
+
+        return resolvedUrl;
+};
+
+export const APP_BASE_URL = base || '';
+export const WEBUI_BASE_URL = getBackendBaseUrl();
 export const WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
 
 export const OLLAMA_API_BASE_URL = `${WEBUI_BASE_URL}/ollama`;
