@@ -19,7 +19,7 @@
         import { getBackendConfig } from '$lib/apis';
         import { getSessionUser } from '$lib/apis/auths';
         import { getUserSettings } from '$lib/apis/users';
-        import { WEBUI_BASE_URL, APP_BASE_URL } from '$lib/constants';
+        import { BACKEND_STORAGE_KEY, WEBUI_BASE_URL, APP_BASE_URL } from '$lib/constants';
 
         import Spinner from '$lib/components/common/Spinner.svelte';
 
@@ -83,6 +83,22 @@
                 window.addEventListener('resize', handleResize);
 
                 const initialize = async () => {
+                        const params = new URLSearchParams(window.location.search);
+                        const isOptionsView =
+                                window.location.pathname.startsWith('/options') ||
+                                params.get('view') === 'options';
+
+                        if (isOptionsView) {
+                                loaded = true;
+                                return;
+                        }
+
+                        if (!localStorage.getItem(BACKEND_STORAGE_KEY)) {
+                                await goto('/options');
+                                loaded = true;
+                                return;
+                        }
+
                         await initI18n();
 
                         const backendConfig = await getBackendConfig().catch(() => null);

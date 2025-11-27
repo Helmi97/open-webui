@@ -5,7 +5,7 @@ import { base } from '$app/paths';
 export const APP_NAME = 'Open WebUI';
 
 const BACKEND_PARAM_KEYS = ['backend', 'backend_url', 'backendUrl'];
-const BACKEND_STORAGE_KEY = 'webui:backend-url';
+export const BACKEND_STORAGE_KEY = 'webui:backend-url';
 
 const normalizeUrl = (url: string) => url.replace(/\/+$/, '');
 

@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { v4 as uuidv4 } from 'uuid';
-	import { toast } from 'svelte-sonner';
-        import { PaneGroup, Pane } from 'paneforge';
+        import { v4 as uuidv4 } from 'uuid';
+        import { toast } from 'svelte-sonner';
 
-	import { getContext, onDestroy, onMount, tick } from 'svelte';
-	import { fade } from 'svelte/transition';
-	const i18n: Writable<i18nType> = getContext('i18n');
+        import { getContext, onDestroy, onMount, tick } from 'svelte';
+        import { fade } from 'svelte/transition';
+        const i18n: Writable<i18nType> = getContext('i18n');
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -15,35 +14,29 @@
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	import {
-		chatId,
-		chats,
-		config,
-		type Model,
-		models,
-		tags as allTags,
-		settings,
-		showSidebar,
-		WEBUI_NAME,
-		banners,
-		user,
-		socket,
-		audioQueue,
-		showControls,
-		showCallOverlay,
-		currentChatPage,
-		temporaryChatEnabled,
-		mobile,
-		showOverview,
-		chatTitle,
-		showArtifacts,
-		artifactContents,
-		tools,
-		toolServers,
-		functions,
-		selectedFolder,
-		pinnedChats,
-		showEmbeds
-	} from '$lib/stores';
+                chatId,
+                chats,
+                config,
+                type Model,
+                models,
+                tags as allTags,
+                settings,
+                WEBUI_NAME,
+                user,
+                socket,
+                audioQueue,
+                showCallOverlay,
+                currentChatPage,
+                temporaryChatEnabled,
+                mobile,
+                chatTitle,
+                artifactContents,
+                tools,
+                toolServers,
+                functions,
+                selectedFolder,
+                pinnedChats
+        } from '$lib/stores';
 
 	import {
 		convertMessagesToHistory,
@@ -84,28 +77,18 @@
 	import { getFunctions } from '$lib/apis/functions';
 	import { updateFolderById } from '$lib/apis/folders';
 
-	import Banner from '../common/Banner.svelte';
-	import MessageInput from '$lib/components/chat/MessageInput.svelte';
-	import Messages from '$lib/components/chat/Messages.svelte';
-	import Navbar from '$lib/components/chat/Navbar.svelte';
-        import ChatControls from './ChatControls.svelte';
+        import MessageInput from '$lib/components/chat/MessageInput.svelte';
+        import Messages from '$lib/components/chat/Messages.svelte';
+        import Navbar from '$lib/components/chat/Navbar.svelte';
         import CallOverlay from './MessageInput/CallOverlay.svelte';
         import EventConfirmDialog from '../common/ConfirmDialog.svelte';
-	import Placeholder from './Placeholder.svelte';
-	import NotificationToast from '../NotificationToast.svelte';
-	import Spinner from '../common/Spinner.svelte';
-	import Tooltip from '../common/Tooltip.svelte';
-	import Sidebar from '../icons/Sidebar.svelte';
-	import Image from '../common/Image.svelte';
+        import Spinner from '../common/Spinner.svelte';
 
 	export let chatIdProp = '';
 
 	let loading = true;
 
-	const eventTarget = new EventTarget();
-	let controlPane;
-	let controlPaneComponent;
-
+        const eventTarget = new EventTarget();
 	let messageInput;
 
 	let autoScroll = true;
@@ -526,9 +509,8 @@
 		savedModelIds();
 	}
 
-	let pageSubscribe = null;
-	let showControlsSubscribe = null;
-	let selectedFolderSubscribe = null;
+        let pageSubscribe = null;
+        let selectedFolderSubscribe = null;
 
 	const stopAudio = () => {
 		try {
@@ -587,29 +569,9 @@
                         } catch (e) {}
                 }
 
-                        showControlsSubscribe = showControls.subscribe(async (value) => {
-                                if (controlPane && !$mobile) {
-                                        try {
-                                                if (value) {
-                                                        controlPaneComponent.openPane();
-					} else {
-						controlPane.collapse();
-					}
-				} catch (e) {
-					// ignore
-				}
-                                }
-
-                                if (!value) {
-                                        showOverview.set(false);
-                                        showArtifacts.set(false);
-                                        showEmbeds.set(false);
-                                }
-                        });
-
-		selectedFolderSubscribe = selectedFolder.subscribe(async (folder) => {
-			if (
-				folder?.data?.model_ids &&
+                selectedFolderSubscribe = selectedFolder.subscribe(async (folder) => {
+                        if (
+                                folder?.data?.model_ids &&
 				JSON.stringify(selectedModels) !== JSON.stringify(folder.data.model_ids)
 			) {
 				selectedModels = folder.data.model_ids;
@@ -622,11 +584,10 @@
 		chatInput?.focus();
 	});
 
-	onDestroy(() => {
-		try {
-			pageSubscribe();
-			showControlsSubscribe();
-			selectedFolderSubscribe();
+        onDestroy(() => {
+                try {
+                        pageSubscribe();
+                        selectedFolderSubscribe();
 			chatIdUnsubscriber?.();
 			window.removeEventListener('message', onMessageHandler);
 			$socket?.off('events', chatEventHandler);
@@ -969,10 +930,7 @@
 			}
 		}
 
-		await showControls.set(false);
-		await showCallOverlay.set(false);
-		await showOverview.set(false);
-		await showArtifacts.set(false);
+                await showCallOverlay.set(false);
 
 		if ($page.url.pathname.includes('/c/')) {
 			window.history.replaceState(history.state, '', `/`);
@@ -1761,11 +1719,12 @@
 	};
 
 	const getFeatures = () => {
-		let features = {};
+                let features = {};
 
-		if ($config?.features)
-			features = {
-				voice: $showCallOverlay,
+                if ($config?.features)
+                        features = {
+                                voice: $showCallOverlay,
+                                code_interpreter: false,
                                 image_generation:
                                         $config?.features?.enable_image_generation &&
                                         ($user?.role === 'admin' || $user?.permissions?.features?.image_generation)
@@ -2353,275 +2312,183 @@
 	}}
 />
 
-<div
-	class="h-screen max-h-[100dvh] transition-width duration-200 ease-in-out {$showSidebar
-		? '  md:max-w-[calc(100%-260px)]'
-		: ' '} w-full max-w-full flex flex-col"
-	id="chat-container"
->
-	{#if !loading}
-		<div in:fade={{ duration: 50 }} class="w-full h-full flex flex-col">
-			{#if $selectedFolder && $selectedFolder?.meta?.background_image_url}
-				<div
-					class="absolute top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
-					style="background-image: url({$selectedFolder?.meta?.background_image_url})  "
-				/>
-
-				<div
-					class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-gray-900/90 z-0"
-				/>
-			{:else if $settings?.backgroundImageUrl ?? $config?.license_metadata?.background_image_url ?? null}
-				<div
-					class="absolute top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
-					style="background-image: url({$settings?.backgroundImageUrl ??
-						$config?.license_metadata?.background_image_url})  "
-				/>
-
-				<div
-					class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-gray-900/90 z-0"
-				/>
-			{/if}
-
-			<PaneGroup direction="horizontal" class="w-full h-full">
-				<Pane defaultSize={50} minSize={30} class="h-full flex relative max-w-full flex-col">
-					<Navbar
-						bind:this={navbarElement}
-						chat={{
-							id: $chatId,
-							chat: {
-								title: $chatTitle,
-								models: selectedModels,
-								system: $settings.system ?? undefined,
-								params: params,
-								history: history,
-								timestamp: Date.now()
-							}
-						}}
-						{history}
-						title={$chatTitle}
-						bind:selectedModels
-						shareEnabled={!!history.currentId}
-						{initNewChat}
-						archiveChatHandler={() => {}}
-						{moveChatHandler}
-						onSaveTempChat={async () => {
-							try {
-								if (!history?.currentId || !Object.keys(history.messages).length) {
-									toast.error($i18n.t('No conversation to save'));
-									return;
-								}
-								const messages = createMessagesList(history, history.currentId);
-								const title =
-									messages.find((m) => m.role === 'user')?.content ?? $i18n.t('New Chat');
-
-								const savedChat = await createNewChat(
-									localStorage.token,
-									{
-										id: uuidv4(),
-										title: title.length > 50 ? `${title.slice(0, 50)}...` : title,
-										models: selectedModels,
-										history: history,
-										messages: messages,
-										timestamp: Date.now()
-									},
-									null
-								);
-
-								if (savedChat) {
-									temporaryChatEnabled.set(false);
-									chatId.set(savedChat.id);
-									chats.set(await getChatList(localStorage.token, $currentChatPage));
-
-									await goto(`/c/${savedChat.id}`);
-									toast.success($i18n.t('Conversation saved successfully'));
-								}
-							} catch (error) {
-								console.error('Error saving conversation:', error);
-								toast.error($i18n.t('Failed to save conversation'));
-							}
-						}}
-					/>
-
-                                        <div class="flex flex-col flex-auto z-10 w-full @container overflow-auto">
-                                                {#if $showCallOverlay}
-                                                        <div class="flex flex-1 items-center justify-center px-3 pb-3 pt-1 md:px-6">
-                                                                <CallOverlay
-                                                                        bind:files
-                                                                        {submitPrompt}
-                                                                        {stopResponse}
-                                                                        chatId={$chatId}
-                                                                        modelId={selectedModelIds?.at(0) ?? null}
-                                                                        {eventTarget}
-                                                                        on:close={() => {
-                                                                                showCallOverlay.set(false);
-                                                                        }}
-                                                                />
-                                                        </div>
-                                                {:else if ($settings?.landingPageMode === 'chat' && !$selectedFolder) ||
-                                                        createMessagesList(history, history.currentId).length > 0}
-                                                        <div
-                                                                class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
-                                                                id="messages-container"
-                                                                bind:this={messagesContainerElement}
-                                                                on:scroll={(e) => {
-                                                                        autoScroll =
-                                                                                messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
-                                                                                messagesContainerElement.clientHeight + 5;
-                                                                }}
-                                                        >
-                                                                <div class=" h-full w-full flex flex-col">
-                                                                        <Messages
-                                                                                chatId={$chatId}
-                                                                                bind:history
-                                                                                bind:autoScroll
-                                                                                bind:prompt
-                                                                                setInputText={(text) => {
-                                                                                        messageInput?.setText(text);
-                                                                                }}
-                                                                                {selectedModels}
-                                                                                {atSelectedModel}
-                                                                                {sendMessage}
-                                                                                {showMessage}
-                                                                                {submitMessage}
-                                                                                {continueResponse}
-                                                                                {regenerateResponse}
-                                                                                {mergeResponses}
-                                                                                {chatActionHandler}
-                                                                                {addMessages}
-                                                                                topPadding={true}
-                                                                                bottomPadding={files.length > 0}
-                                                                                {onSelect}
-                                                                        />
-                                                                </div>
-                                                        </div>
-
-                                                        <div class=" pb-2 z-10">
-                                                                <MessageInput
-                                                                        bind:this={messageInput}
-                                                                        {history}
-                                                                        {taskIds}
-                                                                        {selectedModels}
-                                                                        bind:files
-                                                                        bind:prompt
-                                                                        bind:autoScroll
-                                                                        bind:selectedToolIds
-                                                                        bind:selectedFilterIds
-                                                                        bind:imageGenerationEnabled
-                                                                        bind:webSearchEnabled
-                                                                        bind:atSelectedModel
-                                                                        bind:showCommands
-                                                                        toolServers={$toolServers}
-                                                                        {generating}
-                                                                        {stopResponse}
-                                                                        {createMessagePair}
-                                                                        onChange={(data) => {
-                                                                                if (!$temporaryChatEnabled) {
-                                                                                        saveDraft(data, $chatId);
-                                                                                }
-                                                                        }}
-                                                                        on:upload={async (e) => {
-                                                                                const { type, data } = e.detail;
-
-                                                                                if (type === 'web') {
-                                                                                        await uploadWeb(data);
-                                                                                } else if (type === 'youtube') {
-                                                                                        await uploadYoutubeTranscription(data);
-                                                                                } else if (type === 'google-drive') {
-                                                                                        await uploadGoogleDriveFile(data);
-                                                                                }
-                                                                        }}
-                                                                        on:submit={async (e) => {
-                                                                                clearDraft();
-                                                                                if (e.detail || files.length > 0) {
-                                                                                        await tick();
-
-                                                                                        submitPrompt(e.detail.replaceAll('\n\n', '\n'));
-                                                                                }
-                                                                        }}
-                                                                />
-
-                                                                <div
-                                                                        class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
-                                                                >
-                                                                        <!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
-                                                                </div>
-                                                        </div>
-                                                {:else}
-                                                        <div class="flex items-center h-full">
-                                                                <Placeholder
-                                                                        {history}
-                                                                        {selectedModels}
-                                                                        bind:messageInput
-                                                                        bind:files
-                                                                        bind:prompt
-                                                                        bind:autoScroll
-                                                                        bind:selectedToolIds
-                                                                        bind:selectedFilterIds
-                                                                        bind:imageGenerationEnabled
-                                                                        bind:webSearchEnabled
-                                                                        bind:atSelectedModel
-                                                                        bind:showCommands
-                                                                        toolServers={$toolServers}
-                                                                        {stopResponse}
-                                                                        {createMessagePair}
-                                                                        {onSelect}
-                                                                        onChange={(data) => {
-                                                                                if (!$temporaryChatEnabled) {
-                                                                                        saveDraft(data);
-                                                                                }
-                                                                        }}
-                                                                        on:upload={async (e) => {
-                                                                                const { type, data } = e.detail;
-
-                                                                                if (type === 'web') {
-                                                                                        await uploadWeb(data);
-                                                                                } else if (type === 'youtube') {
-                                                                                        await uploadYoutubeTranscription(data);
-                                                                                }
-                                                                        }}
-                                                                        on:submit={async (e) => {
-                                                                                clearDraft();
-                                                                                if (e.detail || files.length > 0) {
-                                                                                        await tick();
-                                                                                        submitPrompt(e.detail.replaceAll('\n\n', '\n'));
-                                                                                }
-                                                                        }}
-                                                                />
-                                                        </div>
-                                                {/if}
-                                        </div>
-				</Pane>
-
-                                <ChatControls
-                                        bind:this={controlPaneComponent}
-                                        bind:history
-                                        bind:chatFiles
-                                        bind:params
-                                        bind:pane={controlPane}
-                                        chatId={$chatId}
-                                        models={selectedModelIds.reduce((a, e, i, arr) => {
-                                                const model = $models.find((m) => m.id === e);
-                                                if (model) {
-                                                        return [...a, model];
+<div class="h-screen max-h-[100dvh] w-full max-w-full flex flex-col" id="chat-container">
+        {#if !loading}
+                <div in:fade={{ duration: 50 }} class="relative flex h-full flex-col bg-white dark:bg-gray-900">
+                        <Navbar
+                                bind:this={navbarElement}
+                                chat={{
+                                        id: $chatId,
+                                        chat: {
+                                                title: $chatTitle,
+                                                models: selectedModels,
+                                                system: $settings.system ?? undefined,
+                                                params: params,
+                                                history: history,
+                                                timestamp: Date.now()
+                                        }
+                                }}
+                                {history}
+                                title={$chatTitle}
+                                bind:selectedModels
+                                shareEnabled={!!history.currentId}
+                                {initNewChat}
+                                archiveChatHandler={() => {}}
+                                {moveChatHandler}
+                                onSaveTempChat={async () => {
+                                        try {
+                                                if (!history?.currentId || !Object.keys(history.messages).length) {
+                                                        toast.error($i18n.t('No conversation to save'));
+                                                        return;
                                                 }
-                                                return a;
-                                        }, [])}
-                                        {showMessage}
-                                />
-			</PaneGroup>
-		</div>
-	{:else if loading}
-		<div class=" flex items-center justify-center h-full w-full">
-			<div class="m-auto">
-				<Spinner className="size-5" />
-			</div>
-		</div>
-	{/if}
+                                                const messages = createMessagesList(history, history.currentId);
+                                                const title =
+                                                        messages.find((m) => m.role === 'user')?.content ?? $i18n.t('New Chat');
+
+                                                const savedChat = await createNewChat(
+                                                        localStorage.token,
+                                                        {
+                                                                id: uuidv4(),
+                                                                title: title.length > 50 ? `${title.slice(0, 50)}...` : title,
+                                                                models: selectedModels,
+                                                                history: history,
+                                                                messages: messages,
+                                                                timestamp: Date.now()
+                                                        },
+                                                        null
+                                                );
+
+                                                if (savedChat) {
+                                                        temporaryChatEnabled.set(false);
+                                                        chatId.set(savedChat.id);
+                                                        chats.set(await getChatList(localStorage.token, $currentChatPage));
+
+                                                        await goto(`/c/${savedChat.id}`);
+                                                        toast.success($i18n.t('Conversation saved successfully'));
+                                                }
+                                        } catch (error) {
+                                                console.error('Error saving conversation:', error);
+                                                toast.error($i18n.t('Failed to save conversation'));
+                                        }
+                                }}
+                                onSignOut={async () => {
+                                        localStorage.removeItem('token');
+                                        await user.set(null);
+                                        await goto('/auth');
+                                }}
+                                currentModel={$models.find((m) => m.id === selectedModelIds?.[0])}
+                        />
+
+                        {#if $showCallOverlay}
+                                <div class="flex flex-1 items-center justify-center px-3 pb-3 pt-1 md:px-6">
+                                        <CallOverlay
+                                                bind:files
+                                                {submitPrompt}
+                                                {stopResponse}
+                                                chatId={$chatId}
+                                                modelId={selectedModelIds?.at(0) ?? null}
+                                                {eventTarget}
+                                                on:close={() => {
+                                                        showCallOverlay.set(false);
+                                                }}
+                                        />
+                                </div>
+                        {:else}
+                                <div
+                                        class="flex-1 pb-2.5 flex flex-col w-full overflow-auto max-w-full z-10 scrollbar-hidden"
+                                        id="messages-container"
+                                        bind:this={messagesContainerElement}
+                                        on:scroll={() => {
+                                                autoScroll =
+                                                        messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
+                                                        messagesContainerElement.clientHeight + 5;
+                                        }}
+                                >
+                                        <div class="h-full w-full flex flex-col">
+                                                <Messages
+                                                        chatId={$chatId}
+                                                        bind:history
+                                                        bind:autoScroll
+                                                        bind:prompt
+                                                        setInputText={(text) => {
+                                                                messageInput?.setText(text);
+                                                        }}
+                                                        {selectedModels}
+                                                        {atSelectedModel}
+                                                        {sendMessage}
+                                                        {showMessage}
+                                                        {submitMessage}
+                                                        {continueResponse}
+                                                        {regenerateResponse}
+                                                        {mergeResponses}
+                                                        {chatActionHandler}
+                                                        {addMessages}
+                                                        topPadding={true}
+                                                        bottomPadding={files.length > 0}
+                                                        {onSelect}
+                                                />
+                                        </div>
+                                </div>
+
+                                <div class="pb-2 z-10 border-t border-gray-200/70 dark:border-gray-800/60 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
+                                        <MessageInput
+                                                bind:this={messageInput}
+                                                {history}
+                                                {taskIds}
+                                                {selectedModels}
+                                                bind:files
+                                                bind:prompt
+                                                bind:autoScroll
+                                                bind:selectedToolIds
+                                                bind:selectedFilterIds
+                                                bind:imageGenerationEnabled
+                                                bind:webSearchEnabled
+                                                bind:atSelectedModel
+                                                bind:showCommands
+                                                toolServers={$toolServers}
+                                                {generating}
+                                                {stopResponse}
+                                                {createMessagePair}
+                                                onChange={(data) => {
+                                                        if (!$temporaryChatEnabled) {
+                                                                saveDraft(data, $chatId);
+                                                        }
+                                                }}
+                                                on:upload={async (e) => {
+                                                        const { type, data } = e.detail;
+
+                                                        if (type === 'web') {
+                                                                await uploadWeb(data);
+                                                        } else if (type === 'youtube') {
+                                                                await uploadYoutubeTranscription(data);
+                                                        } else if (type === 'google-drive') {
+                                                                await uploadGoogleDriveFile(data);
+                                                        }
+                                                }}
+                                                on:submit={async (e) => {
+                                                        clearDraft();
+                                                        if (e.detail || files.length > 0) {
+                                                                await tick();
+
+                                                                submitPrompt(e.detail.replaceAll('\n\n', '\n'));
+                                                        }
+                                                }}
+                                        />
+                                </div>
+                        {/if}
+                </div>
+        {:else if loading}
+                <div class="flex items-center justify-center h-full w-full">
+                        <div class="m-auto">
+                                <Spinner className="size-5" />
+                        </div>
+                </div>
+        {/if}
 </div>
 
 <style>
-	::-webkit-scrollbar {
-		height: 0.5rem;
-		width: 0.5rem;
-	}
+        ::-webkit-scrollbar {
+                height: 0.5rem;
+                width: 0.5rem;
+        }
 </style>
