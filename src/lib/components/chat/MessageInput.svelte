@@ -16,15 +16,14 @@
 		mobile,
 		settings,
 		models,
-		config,
-		showCallOverlay,
-		tools,
-		toolServers,
-		user as _user,
-		showControls,
-		TTSWorker,
-		temporaryChatEnabled
-	} from '$lib/stores';
+                config,
+                showCallOverlay,
+                tools,
+                toolServers,
+                user as _user,
+                TTSWorker,
+                temporaryChatEnabled
+        } from '$lib/stores';
 
 	import {
 		convertHeicToJpeg,
@@ -67,11 +66,10 @@
 	import CommandLine from '../icons/CommandLine.svelte';
 	import Sparkles from '../icons/Sparkles.svelte';
 
-	import InputVariablesModal from './MessageInput/InputVariablesModal.svelte';
-	import Voice from '../icons/Voice.svelte';
-	import Terminal from '../icons/Terminal.svelte';
-	import IntegrationsMenu from './MessageInput/IntegrationsMenu.svelte';
-	import Component from '../icons/Component.svelte';
+        import InputVariablesModal from './MessageInput/InputVariablesModal.svelte';
+        import Voice from '../icons/Voice.svelte';
+        import IntegrationsMenu from './MessageInput/IntegrationsMenu.svelte';
+        import Component from '../icons/Component.svelte';
 	import PlusAlt from '../icons/PlusAlt.svelte';
 
 	import { KokoroWorker } from '$lib/workers/KokoroWorker';
@@ -103,11 +101,10 @@
 	export let files = [];
 
 	export let selectedToolIds = [];
-	export let selectedFilterIds = [];
+        export let selectedFilterIds = [];
 
-	export let imageGenerationEnabled = false;
-	export let webSearchEnabled = false;
-	export let codeInterpreterEnabled = false;
+        export let imageGenerationEnabled = false;
+        export let webSearchEnabled = false;
 
 	let showInputVariablesModal = false;
 	let inputVariablesModalCallback = (variableValues) => {};
@@ -135,11 +132,10 @@
 				};
 			}),
 		selectedToolIds,
-		selectedFilterIds,
-		imageGenerationEnabled,
-		webSearchEnabled,
-		codeInterpreterEnabled
-	});
+                selectedFilterIds,
+                imageGenerationEnabled,
+                webSearchEnabled
+        });
 
 	const inputVariableHandler = async (text: string): Promise<string> => {
 		inputVariables = extractInputVariables(text);
@@ -439,18 +435,10 @@
 			$models.find((m) => m.id === model)?.info?.meta?.capabilities?.image_generation ?? true
 	);
 
-	let codeInterpreterCapableModels = [];
-	$: codeInterpreterCapableModels = (
-		atSelectedModel?.id ? [atSelectedModel.id] : selectedModels
-	).filter(
-		(model) =>
-			$models.find((m) => m.id === model)?.info?.meta?.capabilities?.code_interpreter ?? true
-	);
-
-	let toggleFilters = [];
-	$: toggleFilters = (atSelectedModel?.id ? [atSelectedModel.id] : selectedModels)
-		.map((id) => ($models.find((model) => model.id === id) || {})?.filters ?? [])
-		.reduce((acc, filters) => acc.filter((f1) => filters.some((f2) => f2.id === f1.id)));
+        let toggleFilters = [];
+        $: toggleFilters = (atSelectedModel?.id ? [atSelectedModel.id] : selectedModels)
+                .map((id) => ($models.find((model) => model.id === id) || {})?.filters ?? [])
+                .reduce((acc, filters) => acc.filter((f1) => filters.some((f2) => f2.id === f1.id)));
 
 	let showToolsButton = false;
 	$: showToolsButton = ($tools ?? []).length > 0 || ($toolServers ?? []).length > 0;
@@ -462,19 +450,12 @@
 		$config?.features?.enable_web_search &&
 		($_user.role === 'admin' || $_user?.permissions?.features?.web_search);
 
-	let showImageGenerationButton = false;
-	$: showImageGenerationButton =
-		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
-			imageGenerationCapableModels.length &&
-		$config?.features?.enable_image_generation &&
-		($_user.role === 'admin' || $_user?.permissions?.features?.image_generation);
-
-	let showCodeInterpreterButton = false;
-	$: showCodeInterpreterButton =
-		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
-			codeInterpreterCapableModels.length &&
-		$config?.features?.enable_code_interpreter &&
-		($_user.role === 'admin' || $_user?.permissions?.features?.code_interpreter);
+        let showImageGenerationButton = false;
+        $: showImageGenerationButton =
+                (atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
+                        imageGenerationCapableModels.length &&
+                $config?.features?.enable_image_generation &&
+                ($_user.role === 'admin' || $_user?.permissions?.features?.image_generation);
 
 	const scrollToBottom = () => {
 		const element = document.getElementById('messages-container');
@@ -1306,14 +1287,13 @@
 															console.log('Escape');
 															atSelectedModel = undefined;
 															selectedToolIds = [];
-															selectedFilterIds = [];
+                                                                                                                        selectedFilterIds = [];
 
-															webSearchEnabled = false;
-															imageGenerationEnabled = false;
-															codeInterpreterEnabled = false;
-														}
-													}}
-													on:paste={async (e) => {
+                                                                                                                        webSearchEnabled = false;
+                                                                                                                        imageGenerationEnabled = false;
+                                                                                                                }
+                                                                                                        }}
+                                                                                                        on:paste={async (e) => {
 														e = e.detail.event;
 														console.log(e);
 
@@ -1436,26 +1416,24 @@
 										</div>
 									</InputMenu>
 
-									{#if showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton || showToolsButton || (toggleFilters && toggleFilters.length > 0)}
+                                                                        {#if showWebSearchButton || showImageGenerationButton || showToolsButton || (toggleFilters && toggleFilters.length > 0)}
 										<div
 											class="flex self-center w-[1px] h-4 mx-1 bg-gray-200/50 dark:bg-gray-800/50"
 										/>
 
-										<IntegrationsMenu
-											selectedModels={atSelectedModel ? [atSelectedModel.id] : selectedModels}
-											{toggleFilters}
-											{showWebSearchButton}
-											{showImageGenerationButton}
-											{showCodeInterpreterButton}
-											bind:selectedToolIds
-											bind:selectedFilterIds
-											bind:webSearchEnabled
-											bind:imageGenerationEnabled
-											bind:codeInterpreterEnabled
-											closeOnOutsideClick={integrationsMenuCloseOnOutsideClick}
-											onShowValves={(e) => {
-												const { type, id } = e;
-												selectedValvesType = type;
+                                                                                <IntegrationsMenu
+                                                                                        selectedModels={atSelectedModel ? [atSelectedModel.id] : selectedModels}
+                                                                                        {toggleFilters}
+                                                                                        {showWebSearchButton}
+                                                                                        {showImageGenerationButton}
+                                                                                        bind:selectedToolIds
+                                                                                        bind:selectedFilterIds
+                                                                                        bind:webSearchEnabled
+                                                                                        bind:imageGenerationEnabled
+                                                                                        closeOnOutsideClick={integrationsMenuCloseOnOutsideClick}
+                                                                                        onShowValves={(e) => {
+                                                                                                const { type, id } = e;
+                                                                                                selectedValvesType = type;
 												selectedValvesItemId = id;
 												showValvesModal = true;
 												integrationsMenuCloseOnOutsideClick = false;
@@ -1591,33 +1569,8 @@
 											</Tooltip>
 										{/if}
 
-										{#if codeInterpreterEnabled}
-											<Tooltip content={$i18n.t('Code Interpreter')} placement="top">
-												<button
-													aria-label={codeInterpreterEnabled
-														? $i18n.t('Disable Code Interpreter')
-														: $i18n.t('Enable Code Interpreter')}
-													aria-pressed={codeInterpreterEnabled}
-													on:click|preventDefault={() =>
-														(codeInterpreterEnabled = !codeInterpreterEnabled)}
-													type="button"
-													class=" group p-[7px] flex gap-1.5 items-center text-sm transition-colors duration-300 max-w-full overflow-hidden {codeInterpreterEnabled
-														? ' text-sky-500 dark:text-sky-300 bg-sky-50 hover:bg-sky-100 dark:bg-sky-400/10 dark:hover:bg-sky-700/10 border border-sky-200/40 dark:border-sky-500/20'
-														: 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 '} {($settings?.highContrastMode ??
-													false)
-														? 'm-1'
-														: 'focus:outline-hidden rounded-full'}"
-												>
-													<Terminal className="size-3.5" strokeWidth="2" />
-
-													<div class="hidden group-hover:block">
-														<XMark className="size-4" strokeWidth="1.75" />
-													</div>
-												</button>
-											</Tooltip>
-										{/if}
-									</div>
-								</div>
+                                                                        </div>
+                                                                </div>
 
 								<div class="self-end flex space-x-1 mr-1 shrink-0">
 									{#if (!history?.currentId || history.messages[history.currentId]?.done == true) && ($_user?.role === 'admin' || ($_user?.permissions?.chat?.stt ?? true))}
@@ -1742,9 +1695,8 @@
 																}
 															}
 
-															showCallOverlay.set(true);
-															showControls.set(true);
-														} catch (err) {
+showCallOverlay.set(true);
+} catch (err) {
 															// If the user denies the permission or an error occurs, show an error message
 															toast.error(
 																$i18n.t('Permission denied when accessing media devices')

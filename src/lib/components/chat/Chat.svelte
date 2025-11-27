@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { v4 as uuidv4 } from 'uuid';
 	import { toast } from 'svelte-sonner';
-	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
+        import { PaneGroup, Pane } from 'paneforge';
 
 	import { getContext, onDestroy, onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -88,8 +88,9 @@
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
-	import ChatControls from './ChatControls.svelte';
-	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
+        import ChatControls from './ChatControls.svelte';
+        import CallOverlay from './MessageInput/CallOverlay.svelte';
+        import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 	import Placeholder from './Placeholder.svelte';
 	import NotificationToast from '../NotificationToast.svelte';
 	import Spinner from '../common/Spinner.svelte';
@@ -136,9 +137,7 @@
 	let selectedFilterIds = [];
 	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
-	let codeInterpreterEnabled = false;
-
-	let showCommands = false;
+        let showCommands = false;
 
 	let generating = false;
 	let generationController = null;
@@ -171,11 +170,11 @@
 
 		files = [];
 		selectedToolIds = [];
-		selectedFilterIds = [];
-		webSearchEnabled = false;
-		imageGenerationEnabled = false;
+                selectedFilterIds = [];
+                webSearchEnabled = false;
+                imageGenerationEnabled = false;
 
-		const storageChatInput = sessionStorage.getItem(
+                const storageChatInput = sessionStorage.getItem(
 			`chat-input${chatIdProp ? `-${chatIdProp}` : ''}`
 		);
 
@@ -194,10 +193,9 @@
 						messageInput?.setText(input.prompt);
 						files = input.files;
 						selectedToolIds = input.selectedToolIds;
-						selectedFilterIds = input.selectedFilterIds;
-						webSearchEnabled = input.webSearchEnabled;
-						imageGenerationEnabled = input.imageGenerationEnabled;
-						codeInterpreterEnabled = input.codeInterpreterEnabled;
+                                                selectedFilterIds = input.selectedFilterIds;
+                                                webSearchEnabled = input.webSearchEnabled;
+                                                imageGenerationEnabled = input.imageGenerationEnabled;
 					}
 				} catch (e) {}
 			} else {
@@ -252,17 +250,16 @@
 		oldSelectedModelIds = JSON.parse(JSON.stringify(selectedModelIds));
 	};
 
-	const resetInput = () => {
-		selectedToolIds = [];
-		selectedFilterIds = [];
-		webSearchEnabled = false;
-		imageGenerationEnabled = false;
-		codeInterpreterEnabled = false;
+        const resetInput = () => {
+                selectedToolIds = [];
+                selectedFilterIds = [];
+                webSearchEnabled = false;
+                imageGenerationEnabled = false;
 
-		if (selectedModelIds.filter((id) => id).length > 0) {
-			setDefaults();
-		}
-	};
+                if (selectedModelIds.filter((id) => id).length > 0) {
+                        setDefaults();
+                }
+        };
 
 	const setDefaults = async () => {
 		if (!$tools) {
@@ -295,20 +292,16 @@
 
 			// Set Default Features
 			if (model?.info?.meta?.defaultFeatureIds) {
-				if (model.info?.meta?.capabilities?.['image_generation']) {
-					imageGenerationEnabled = model.info.meta.defaultFeatureIds.includes('image_generation');
-				}
+                                if (model.info?.meta?.capabilities?.['image_generation']) {
+                                        imageGenerationEnabled = model.info.meta.defaultFeatureIds.includes('image_generation');
+                                }
 
-				if (model.info?.meta?.capabilities?.['web_search']) {
-					webSearchEnabled = model.info.meta.defaultFeatureIds.includes('web_search');
-				}
-
-				if (model.info?.meta?.capabilities?.['code_interpreter']) {
-					codeInterpreterEnabled = model.info.meta.defaultFeatureIds.includes('code_interpreter');
-				}
-			}
-		}
-	};
+                                if (model.info?.meta?.capabilities?.['web_search']) {
+                                        webSearchEnabled = model.info.meta.defaultFeatureIds.includes('web_search');
+                                }
+                        }
+                }
+        };
 
 	const showMessage = async (message, ignoreSettings = false) => {
 		await tick();
@@ -574,48 +567,45 @@
 			prompt = '';
 			messageInput?.setText('');
 
-			files = [];
-			selectedToolIds = [];
-			selectedFilterIds = [];
-			webSearchEnabled = false;
-			imageGenerationEnabled = false;
-			codeInterpreterEnabled = false;
+                        files = [];
+                        selectedToolIds = [];
+                        selectedFilterIds = [];
+                        webSearchEnabled = false;
+                        imageGenerationEnabled = false;
 
-			try {
-				const input = JSON.parse(storageChatInput);
+                        try {
+                                const input = JSON.parse(storageChatInput);
 
-				if (!$temporaryChatEnabled) {
-					messageInput?.setText(input.prompt);
-					files = input.files;
-					selectedToolIds = input.selectedToolIds;
-					selectedFilterIds = input.selectedFilterIds;
-					webSearchEnabled = input.webSearchEnabled;
-					imageGenerationEnabled = input.imageGenerationEnabled;
-					codeInterpreterEnabled = input.codeInterpreterEnabled;
-				}
-			} catch (e) {}
-		}
+                                if (!$temporaryChatEnabled) {
+                                        messageInput?.setText(input.prompt);
+                                        files = input.files;
+                                        selectedToolIds = input.selectedToolIds;
+                                        selectedFilterIds = input.selectedFilterIds;
+                                        webSearchEnabled = input.webSearchEnabled;
+                                        imageGenerationEnabled = input.imageGenerationEnabled;
+                                }
+                        } catch (e) {}
+                }
 
-		showControlsSubscribe = showControls.subscribe(async (value) => {
-			if (controlPane && !$mobile) {
-				try {
-					if (value) {
-						controlPaneComponent.openPane();
+                        showControlsSubscribe = showControls.subscribe(async (value) => {
+                                if (controlPane && !$mobile) {
+                                        try {
+                                                if (value) {
+                                                        controlPaneComponent.openPane();
 					} else {
 						controlPane.collapse();
 					}
 				} catch (e) {
 					// ignore
 				}
-			}
+                                }
 
-			if (!value) {
-				showCallOverlay.set(false);
-				showOverview.set(false);
-				showArtifacts.set(false);
-				showEmbeds.set(false);
-			}
-		});
+                                if (!value) {
+                                        showOverview.set(false);
+                                        showArtifacts.set(false);
+                                        showEmbeds.set(false);
+                                }
+                        });
 
 		selectedFolderSubscribe = selectedFolder.subscribe(async (folder) => {
 			if (
@@ -1012,17 +1002,13 @@
 			await uploadWeb($page.url.searchParams.get('load-url'));
 		}
 
-		if ($page.url.searchParams.get('web-search') === 'true') {
-			webSearchEnabled = true;
-		}
+                if ($page.url.searchParams.get('web-search') === 'true') {
+                        webSearchEnabled = true;
+                }
 
-		if ($page.url.searchParams.get('image-generation') === 'true') {
-			imageGenerationEnabled = true;
-		}
-
-		if ($page.url.searchParams.get('code-interpreter') === 'true') {
-			codeInterpreterEnabled = true;
-		}
+                if ($page.url.searchParams.get('image-generation') === 'true') {
+                        imageGenerationEnabled = true;
+                }
 
 		if ($page.url.searchParams.get('tools')) {
 			selectedToolIds = $page.url.searchParams
@@ -1038,10 +1024,9 @@
 				.filter((id) => id);
 		}
 
-		if ($page.url.searchParams.get('call') === 'true') {
-			showCallOverlay.set(true);
-			showControls.set(true);
-		}
+                if ($page.url.searchParams.get('call') === 'true') {
+                        showCallOverlay.set(true);
+                }
 
 		if ($page.url.searchParams.get('q')) {
 			const q = $page.url.searchParams.get('q') ?? '';
@@ -1781,21 +1766,16 @@
 		if ($config?.features)
 			features = {
 				voice: $showCallOverlay,
-				image_generation:
-					$config?.features?.enable_image_generation &&
-					($user?.role === 'admin' || $user?.permissions?.features?.image_generation)
-						? imageGenerationEnabled
-						: false,
-				code_interpreter:
-					$config?.features?.enable_code_interpreter &&
-					($user?.role === 'admin' || $user?.permissions?.features?.code_interpreter)
-						? codeInterpreterEnabled
-						: false,
-				web_search:
-					$config?.features?.enable_web_search &&
-					($user?.role === 'admin' || $user?.permissions?.features?.web_search)
-						? webSearchEnabled
-						: false
+                                image_generation:
+                                        $config?.features?.enable_image_generation &&
+                                        ($user?.role === 'admin' || $user?.permissions?.features?.image_generation)
+                                                ? imageGenerationEnabled
+                                                : false,
+                                web_search:
+                                        $config?.features?.enable_web_search &&
+                                        ($user?.role === 'admin' || $user?.permissions?.features?.web_search)
+                                                ? webSearchEnabled
+                                                : false
 			};
 
 		const currentModels = atSelectedModel?.id ? [atSelectedModel.id] : selectedModels;
@@ -2462,164 +2442,172 @@
 						}}
 					/>
 
-					<div class="flex flex-col flex-auto z-10 w-full @container overflow-auto">
-						{#if ($settings?.landingPageMode === 'chat' && !$selectedFolder) || createMessagesList(history, history.currentId).length > 0}
-							<div
-								class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
-								id="messages-container"
-								bind:this={messagesContainerElement}
-								on:scroll={(e) => {
-									autoScroll =
-										messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
-										messagesContainerElement.clientHeight + 5;
-								}}
-							>
-								<div class=" h-full w-full flex flex-col">
-									<Messages
-										chatId={$chatId}
-										bind:history
-										bind:autoScroll
-										bind:prompt
-										setInputText={(text) => {
-											messageInput?.setText(text);
-										}}
-										{selectedModels}
-										{atSelectedModel}
-										{sendMessage}
-										{showMessage}
-										{submitMessage}
-										{continueResponse}
-										{regenerateResponse}
-										{mergeResponses}
-										{chatActionHandler}
-										{addMessages}
-										topPadding={true}
-										bottomPadding={files.length > 0}
-										{onSelect}
-									/>
-								</div>
-							</div>
+                                        <div class="flex flex-col flex-auto z-10 w-full @container overflow-auto">
+                                                {#if $showCallOverlay}
+                                                        <div class="flex flex-1 items-center justify-center px-3 pb-3 pt-1 md:px-6">
+                                                                <CallOverlay
+                                                                        bind:files
+                                                                        {submitPrompt}
+                                                                        {stopResponse}
+                                                                        chatId={$chatId}
+                                                                        modelId={selectedModelIds?.at(0) ?? null}
+                                                                        {eventTarget}
+                                                                        on:close={() => {
+                                                                                showCallOverlay.set(false);
+                                                                        }}
+                                                                />
+                                                        </div>
+                                                {:else if ($settings?.landingPageMode === 'chat' && !$selectedFolder) ||
+                                                        createMessagesList(history, history.currentId).length > 0}
+                                                        <div
+                                                                class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
+                                                                id="messages-container"
+                                                                bind:this={messagesContainerElement}
+                                                                on:scroll={(e) => {
+                                                                        autoScroll =
+                                                                                messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
+                                                                                messagesContainerElement.clientHeight + 5;
+                                                                }}
+                                                        >
+                                                                <div class=" h-full w-full flex flex-col">
+                                                                        <Messages
+                                                                                chatId={$chatId}
+                                                                                bind:history
+                                                                                bind:autoScroll
+                                                                                bind:prompt
+                                                                                setInputText={(text) => {
+                                                                                        messageInput?.setText(text);
+                                                                                }}
+                                                                                {selectedModels}
+                                                                                {atSelectedModel}
+                                                                                {sendMessage}
+                                                                                {showMessage}
+                                                                                {submitMessage}
+                                                                                {continueResponse}
+                                                                                {regenerateResponse}
+                                                                                {mergeResponses}
+                                                                                {chatActionHandler}
+                                                                                {addMessages}
+                                                                                topPadding={true}
+                                                                                bottomPadding={files.length > 0}
+                                                                                {onSelect}
+                                                                        />
+                                                                </div>
+                                                        </div>
 
-							<div class=" pb-2 z-10">
-								<MessageInput
-									bind:this={messageInput}
-									{history}
-									{taskIds}
-									{selectedModels}
-									bind:files
-									bind:prompt
-									bind:autoScroll
-									bind:selectedToolIds
-									bind:selectedFilterIds
-									bind:imageGenerationEnabled
-									bind:codeInterpreterEnabled
-									bind:webSearchEnabled
-									bind:atSelectedModel
-									bind:showCommands
-									toolServers={$toolServers}
-									{generating}
-									{stopResponse}
-									{createMessagePair}
-									onChange={(data) => {
-										if (!$temporaryChatEnabled) {
-											saveDraft(data, $chatId);
-										}
-									}}
-									on:upload={async (e) => {
-										const { type, data } = e.detail;
+                                                        <div class=" pb-2 z-10">
+                                                                <MessageInput
+                                                                        bind:this={messageInput}
+                                                                        {history}
+                                                                        {taskIds}
+                                                                        {selectedModels}
+                                                                        bind:files
+                                                                        bind:prompt
+                                                                        bind:autoScroll
+                                                                        bind:selectedToolIds
+                                                                        bind:selectedFilterIds
+                                                                        bind:imageGenerationEnabled
+                                                                        bind:webSearchEnabled
+                                                                        bind:atSelectedModel
+                                                                        bind:showCommands
+                                                                        toolServers={$toolServers}
+                                                                        {generating}
+                                                                        {stopResponse}
+                                                                        {createMessagePair}
+                                                                        onChange={(data) => {
+                                                                                if (!$temporaryChatEnabled) {
+                                                                                        saveDraft(data, $chatId);
+                                                                                }
+                                                                        }}
+                                                                        on:upload={async (e) => {
+                                                                                const { type, data } = e.detail;
 
-										if (type === 'web') {
-											await uploadWeb(data);
-										} else if (type === 'youtube') {
-											await uploadYoutubeTranscription(data);
-										} else if (type === 'google-drive') {
-											await uploadGoogleDriveFile(data);
-										}
-									}}
-									on:submit={async (e) => {
-										clearDraft();
-										if (e.detail || files.length > 0) {
-											await tick();
+                                                                                if (type === 'web') {
+                                                                                        await uploadWeb(data);
+                                                                                } else if (type === 'youtube') {
+                                                                                        await uploadYoutubeTranscription(data);
+                                                                                } else if (type === 'google-drive') {
+                                                                                        await uploadGoogleDriveFile(data);
+                                                                                }
+                                                                        }}
+                                                                        on:submit={async (e) => {
+                                                                                clearDraft();
+                                                                                if (e.detail || files.length > 0) {
+                                                                                        await tick();
 
-											submitPrompt(e.detail.replaceAll('\n\n', '\n'));
-										}
-									}}
-								/>
+                                                                                        submitPrompt(e.detail.replaceAll('\n\n', '\n'));
+                                                                                }
+                                                                        }}
+                                                                />
 
-								<div
-									class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
-								>
-									<!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
-								</div>
-							</div>
-						{:else}
-							<div class="flex items-center h-full">
-								<Placeholder
-									{history}
-									{selectedModels}
-									bind:messageInput
-									bind:files
-									bind:prompt
-									bind:autoScroll
-									bind:selectedToolIds
-									bind:selectedFilterIds
-									bind:imageGenerationEnabled
-									bind:codeInterpreterEnabled
-									bind:webSearchEnabled
-									bind:atSelectedModel
-									bind:showCommands
-									toolServers={$toolServers}
-									{stopResponse}
-									{createMessagePair}
-									{onSelect}
-									onChange={(data) => {
-										if (!$temporaryChatEnabled) {
-											saveDraft(data);
-										}
-									}}
-									on:upload={async (e) => {
-										const { type, data } = e.detail;
+                                                                <div
+                                                                        class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
+                                                                >
+                                                                        <!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
+                                                                </div>
+                                                        </div>
+                                                {:else}
+                                                        <div class="flex items-center h-full">
+                                                                <Placeholder
+                                                                        {history}
+                                                                        {selectedModels}
+                                                                        bind:messageInput
+                                                                        bind:files
+                                                                        bind:prompt
+                                                                        bind:autoScroll
+                                                                        bind:selectedToolIds
+                                                                        bind:selectedFilterIds
+                                                                        bind:imageGenerationEnabled
+                                                                        bind:webSearchEnabled
+                                                                        bind:atSelectedModel
+                                                                        bind:showCommands
+                                                                        toolServers={$toolServers}
+                                                                        {stopResponse}
+                                                                        {createMessagePair}
+                                                                        {onSelect}
+                                                                        onChange={(data) => {
+                                                                                if (!$temporaryChatEnabled) {
+                                                                                        saveDraft(data);
+                                                                                }
+                                                                        }}
+                                                                        on:upload={async (e) => {
+                                                                                const { type, data } = e.detail;
 
-										if (type === 'web') {
-											await uploadWeb(data);
-										} else if (type === 'youtube') {
-											await uploadYoutubeTranscription(data);
-										}
-									}}
-									on:submit={async (e) => {
-										clearDraft();
-										if (e.detail || files.length > 0) {
-											await tick();
-											submitPrompt(e.detail.replaceAll('\n\n', '\n'));
-										}
-									}}
-								/>
-							</div>
-						{/if}
-					</div>
+                                                                                if (type === 'web') {
+                                                                                        await uploadWeb(data);
+                                                                                } else if (type === 'youtube') {
+                                                                                        await uploadYoutubeTranscription(data);
+                                                                                }
+                                                                        }}
+                                                                        on:submit={async (e) => {
+                                                                                clearDraft();
+                                                                                if (e.detail || files.length > 0) {
+                                                                                        await tick();
+                                                                                        submitPrompt(e.detail.replaceAll('\n\n', '\n'));
+                                                                                }
+                                                                        }}
+                                                                />
+                                                        </div>
+                                                {/if}
+                                        </div>
 				</Pane>
 
-				<ChatControls
-					bind:this={controlPaneComponent}
-					bind:history
-					bind:chatFiles
-					bind:params
-					bind:files
-					bind:pane={controlPane}
-					chatId={$chatId}
-					modelId={selectedModelIds?.at(0) ?? null}
-					models={selectedModelIds.reduce((a, e, i, arr) => {
-						const model = $models.find((m) => m.id === e);
-						if (model) {
-							return [...a, model];
-						}
-						return a;
-					}, [])}
-					{submitPrompt}
-					{stopResponse}
-					{showMessage}
-					{eventTarget}
-				/>
+                                <ChatControls
+                                        bind:this={controlPaneComponent}
+                                        bind:history
+                                        bind:chatFiles
+                                        bind:params
+                                        bind:pane={controlPane}
+                                        chatId={$chatId}
+                                        models={selectedModelIds.reduce((a, e, i, arr) => {
+                                                const model = $models.find((m) => m.id === e);
+                                                if (model) {
+                                                        return [...a, model];
+                                                }
+                                                return a;
+                                        }, [])}
+                                        {showMessage}
+                                />
 			</PaneGroup>
 		</div>
 	{:else if loading}

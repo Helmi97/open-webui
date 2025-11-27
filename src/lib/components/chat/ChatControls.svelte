@@ -3,38 +3,31 @@
 	import { slide } from 'svelte/transition';
 	import { Pane, PaneResizer } from 'paneforge';
 
-	import { onDestroy, onMount, tick } from 'svelte';
-	import {
-		mobile,
-		showControls,
-		showCallOverlay,
-		showOverview,
-		showArtifacts,
-		showEmbeds
-	} from '$lib/stores';
+        import { onDestroy, onMount } from 'svelte';
+        import {
+                mobile,
+                showControls,
+                showOverview,
+                showArtifacts,
+                showEmbeds
+        } from '$lib/stores';
 
-	import Controls from './Controls/Controls.svelte';
-	import CallOverlay from './MessageInput/CallOverlay.svelte';
-	import Drawer from '../common/Drawer.svelte';
-	import Artifacts from './Artifacts.svelte';
-	import Embeds from './ChatControls/Embeds.svelte';
+        import Controls from './Controls/Controls.svelte';
+        import Drawer from '../common/Drawer.svelte';
+        import Artifacts from './Artifacts.svelte';
+        import Embeds from './ChatControls/Embeds.svelte';
 
 	export let history;
-	export let models = [];
+        export let models = [];
 
-	export let chatId = null;
+        export let chatId = null;
 
-	export let chatFiles = [];
-	export let params = {};
+        export let chatFiles = [];
+        export let params = {};
 
-	export let eventTarget: EventTarget;
-	export let submitPrompt: Function;
-	export let stopResponse: Function;
-	export let showMessage: Function;
-	export let files;
-	export let modelId;
+        export let showMessage: Function;
 
-	export let pane;
+        export let pane;
 
 	let mediaQuery;
 	let largeScreen = false;
@@ -54,26 +47,14 @@
 		}
 	};
 
-	const handleMediaQuery = async (e) => {
-		if (e.matches) {
-			largeScreen = true;
-
-			if ($showCallOverlay) {
-				showCallOverlay.set(false);
-				await tick();
-				showCallOverlay.set(true);
-			}
-		} else {
-			largeScreen = false;
-
-			if ($showCallOverlay) {
-				showCallOverlay.set(false);
-				await tick();
-				showCallOverlay.set(true);
-			}
-			pane = null;
-		}
-	};
+        const handleMediaQuery = async (e) => {
+                if (e.matches) {
+                        largeScreen = true;
+                } else {
+                        largeScreen = false;
+                        pane = null;
+                }
+        };
 
 	const onMouseDown = (event) => {
 		dragged = true;
@@ -135,16 +116,12 @@
 		document.removeEventListener('mouseup', onMouseUp);
 	});
 
-	const closeHandler = () => {
-		showControls.set(false);
-		showOverview.set(false);
-		showArtifacts.set(false);
-		showEmbeds.set(false);
-
-		if ($showCallOverlay) {
-			showCallOverlay.set(false);
-		}
-	};
+        const closeHandler = () => {
+                showControls.set(false);
+                showOverview.set(false);
+                showArtifacts.set(false);
+                showEmbeds.set(false);
+        };
 
 	$: if (!chatId) {
 		closeHandler();
@@ -152,40 +129,24 @@
 </script>
 
 {#if !largeScreen}
-	{#if $showControls}
-		<Drawer
-			show={$showControls}
-			onClose={() => {
-				showControls.set(false);
-			}}
-		>
-			<div
-				class=" {$showCallOverlay || $showOverview || $showArtifacts || $showEmbeds
-					? ' h-screen  w-full'
-					: 'px-4 py-3'} h-full"
-			>
-				{#if $showCallOverlay}
-					<div
-						class=" h-full max-h-[100dvh] bg-white text-gray-700 dark:bg-black dark:text-gray-300 flex justify-center"
-					>
-						<CallOverlay
-							bind:files
-							{submitPrompt}
-							{stopResponse}
-							{modelId}
-							{chatId}
-							{eventTarget}
-							on:close={() => {
-								showControls.set(false);
-							}}
-						/>
-					</div>
-				{:else if $showEmbeds}
-					<Embeds />
-				{:else if $showArtifacts}
-					<Artifacts {history} />
-				{:else if $showOverview}
-					{#await import('./Overview.svelte') then { default: Overview }}
+        {#if $showControls}
+                <Drawer
+                        show={$showControls}
+                        onClose={() => {
+                                showControls.set(false);
+                        }}
+                >
+                        <div
+                                class=" {$showOverview || $showArtifacts || $showEmbeds
+                                        ? ' h-screen  w-full'
+                                        : 'px-4 py-3'} h-full"
+                        >
+                                {#if $showEmbeds}
+                                        <Embeds />
+                                {:else if $showArtifacts}
+                                        <Artifacts {history} />
+                                {:else if $showOverview}
+                                        {#await import('./Overview.svelte') then { default: Overview }}
 						<Overview
 							{history}
 							onNodeClick={(e) => {
@@ -224,11 +185,11 @@
 		</PaneResizer>
 	{/if}
 
-	<Pane
-		bind:pane
-		defaultSize={0}
-		onResize={(size) => {
-			if ($showControls && pane.isExpanded()) {
+        <Pane
+                bind:pane
+                defaultSize={0}
+                onResize={(size) => {
+                        if ($showControls && pane.isExpanded()) {
 				if (size < minSize) {
 					pane.resize(minSize);
 				}
@@ -247,34 +208,20 @@
 		}}
 		collapsible={true}
 		class=" z-10 bg-white dark:bg-gray-850"
-	>
-		{#if $showControls}
-			<div class="flex max-h-full min-h-full">
-				<div
-					class="w-full {($showOverview || $showArtifacts || $showEmbeds) && !$showCallOverlay
-						? ' '
-						: 'px-4 py-3 bg-white dark:shadow-lg dark:bg-gray-850 '} z-40 pointer-events-auto overflow-y-auto scrollbar-hidden"
-					id="controls-container"
-				>
-					{#if $showCallOverlay}
-						<div class="w-full h-full flex justify-center">
-							<CallOverlay
-								bind:files
-								{submitPrompt}
-								{stopResponse}
-								{modelId}
-								{chatId}
-								{eventTarget}
-								on:close={() => {
-									showControls.set(false);
-								}}
-							/>
-						</div>
-					{:else if $showEmbeds}
-						<Embeds overlay={dragged} />
-					{:else if $showArtifacts}
-						<Artifacts {history} overlay={dragged} />
-					{:else if $showOverview}
+        >
+                {#if $showControls}
+                        <div class="flex max-h-full min-h-full">
+                                <div
+                                        class="w-full {($showOverview || $showArtifacts || $showEmbeds)
+                                                ? ' '
+                                                : 'px-4 py-3 bg-white dark:shadow-lg dark:bg-gray-850 '} z-40 pointer-events-auto overflow-y-auto scrollbar-hidden"
+                                        id="controls-container"
+                                >
+                                        {#if $showEmbeds}
+                                                <Embeds overlay={dragged} />
+                                        {:else if $showArtifacts}
+                                                <Artifacts {history} overlay={dragged} />
+                                        {:else if $showOverview}
 						{#await import('./Overview.svelte') then { default: Overview }}
 							<Overview
 								{history}
