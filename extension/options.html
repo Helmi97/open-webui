@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open WebUI Options</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="options-page">
+    <header class="app-header">
+      <div>
+        <h1>Backend Settings</h1>
+        <p class="subtitle">Choose which backend URL the side panel should call.</p>
+      </div>
+    </header>
+
+    <main>
+      <form id="options-form" class="options-form">
+        <label for="backend-url">Backend URL</label>
+        <input
+          id="backend-url"
+          name="backendUrl"
+          type="url"
+          inputmode="url"
+          placeholder="https://your-backend.example.com/chat"
+          required
+        />
+        <p class="hint">We will POST messages to this URL as JSON: { "message": "..." }.</p>
+        <button type="submit">Save</button>
+        <output id="options-status" role="status" aria-live="polite"></output>
+      </form>
+    </main>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>
